@@ -8,6 +8,7 @@
 
 
 main() {
+//seed for the rand
 srand( time(NULL) );
 
 //process id
@@ -37,6 +38,8 @@ int k;
 int o;
 int randNum;
 int bool = 1;
+
+//get 7 random room names
 for(k = 0; k < 7; k++) {
 	randNum = rand() % (9 + 1 - 0) + 0;	
 	for (o = 0; o < 7; o++){
@@ -55,23 +58,20 @@ for(k = 0; k < 7; k++) {
 }
 
 
-char buf[0x100];
-
+char buf[50];
 char startRoom[50];
 int rooms;
 FILE * files[7];
+
 for(rooms = 0; rooms < 7; rooms++){
-snprintf(buf, sizeof(buf), "%s", roomNames[roomNums[rooms]]);
-if(rooms == 4) strcpy(startRoom, buf); //get the startRoom name
-printf("%s", buf);
-files[rooms] = fopen(buf, "w");
-fprintf(files[rooms], "ROOM NAME: %s\n", buf);//roomNames[roomNums[rooms]]);
+	snprintf(buf, sizeof(buf), "%s", roomNames[roomNums[rooms]]);
+	if(rooms == 4) strcpy(startRoom, buf); //get the startRoom name
+	files[rooms] = fopen(buf, "w");
+	fprintf(files[rooms], "ROOM NAME: %s\n", buf);
 }
 
 
-
-
-
+//matrix for room connections
 int roomConnections[7][7];
 memset(roomConnections, -1, sizeof(roomConnections));
 
@@ -79,26 +79,17 @@ memset(roomConnections, -1, sizeof(roomConnections));
 int numConnections = 0;
 int putMarks;
 
+//getting number of connections of each room and marking it with a -2
 for (putMarks=0; putMarks < 7; putMarks++){
 	numConnections = (rand() % (6 + 1 - 3)) + 3;
 	roomConnections[putMarks][numConnections] = -2;
 }
 
-int x;
-int l;
-for (x = 0; x < 7; x++){
-for (l = 0; l < 7; l++){
-printf("  %d  ", roomConnections[x][l]);
-}
-printf("\n");
-}
-
+int x, l, i, j, p;
+int count = 0;
 int connectionNum = 0;
 int check2 = 0;
-int i;
-int j;
-int p;
-int count = 0;
+
 for(i = 0; i < 7; i++){
 //need to check to see if there are duplicate
 	j = 0;
@@ -118,7 +109,6 @@ for(i = 0; i < 7; i++){
 			connectionNum = (rand() % (6 + 1 - 0));
 		}				
 			
-	//	printf("connection: %d, i: %d, j: %d\n", connectionNum, i, j);	
 
 		for(p = 0; p < 6; p++) {	
 			if (roomConnections[i][p] == connectionNum) {
@@ -147,7 +137,6 @@ for(i = 0; i < 7; i++){
 }
 }
 
-printf("%d\n", count);
 			
 
 

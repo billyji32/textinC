@@ -9,7 +9,6 @@
 
 main() {
 
-printf("test WTF");
 //seed srand so that random numbers change every time
 srand( time(NULL) );
 //process id
@@ -56,7 +55,6 @@ for(k = 0; k < 7; k++) {
 
 	else bool = 1;
 }
-printf("test");
 
 char buf[50];
 char startRoom[50];
@@ -87,11 +85,10 @@ for (putMarks=0; putMarks < 7; putMarks++){
 int connectionNum = 0;
 int check2 = 0;
 int i, j, l, p, x;
-
+int count = 0;
 for(i = 0; i < 7; i++){
 //need to check to see if there are duplicate
 	j = 0;
-	printf("test");
 	while(roomConnections[i][j] != -1 && roomConnections[i][j] != -2){
 	j++;
 	}
@@ -99,6 +96,8 @@ for(i = 0; i < 7; i++){
 	//if(roomConnections[i][j] == -2) continue;
 	while( roomConnections[i][j] != -2 ){
 		bool = 1;
+		count++;
+		if(count > 2000) break;
 		connectionNum = (rand() % (6 + 1 - 0));
 			
 		while (connectionNum == i){
