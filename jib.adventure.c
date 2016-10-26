@@ -31,7 +31,7 @@ mkdir(fileDir, 0777);
 chdir(fileDir);
 
 //ten room names
-const char* roomNames[] = {"theGreatHall", "theAnteroom", "theMinotaur", "theHouse", "theFiveAndAHalfMinuteHallway", "theThreeAtticWhalestoeInstitution", "theAbyss", "waxAndJedsRoom", "mrMonstersCampsite", "theChildrensRoom"};
+const char* roomNames[] = {"theGreatHall", "theAnteroom", "theMinotaur", "theHouse", "theFiveMinuteHallway", "theWhalestoeInstitution", "theAbyss", "waxAndJedsRoom", "mrMonstersCampsite", "theChildrensRoom"};
 
 int roomNums[7] = {-1, -1, -1, -1, -1, -1, -1};
 int k, o, randNum;
@@ -63,8 +63,10 @@ FILE * files[7];
 
 for(rooms = 0; rooms < 7; rooms++){
 	snprintf(buf, sizeof(buf), "%s", roomNames[roomNums[rooms]]);
+if(rooms == 2) strcpy(startRoom, buf); //get the startRoom name
+
+	buf[strcspn(buf, "\n")] = 0;
 	
-if(rooms == 4) strcpy(startRoom, buf); //get the startRoom name
 	files[rooms] = fopen(buf, "w"); //create a file for each room
 	fprintf(files[rooms], "ROOM NAME: %s\n", buf); 
 }
@@ -93,7 +95,6 @@ for(i = 0; i < 7; i++){
 	j++;
 	}
 
-	//if(roomConnections[i][j] == -2) continue;
 	while( roomConnections[i][j] != -2 ){
 		bool = 1;
 		count++;
@@ -139,7 +140,7 @@ if(roomConnections[x][l] == -2 || roomConnections[x][l] == -1) {
 	break;
 }
 else{
-	snprintf(buf, sizeof(buf), "CONNECTION %d: %s", l+1, roomNames[roomConnections[x][l]]);
+	snprintf(buf, sizeof(buf), "CONNECTION %d: %s", l+1, roomNames[roomNums[roomConnections[x][l]]]);
 	fprintf(files[x], "%s\n", buf);  
 }
 }}
@@ -147,9 +148,9 @@ else{
 const char* names[3] = {"START_ROOM", "END_ROOM", "MID_ROOM"};
 
 for (x=0; x < 7; x++) {
-	if(x == 4)
+	if(x == 2)
 	fprintf(files[x] , "ROOM TYPE: %s\n", names[0]);
-	else if (x == 2) 
+	else if (x == 5) 
 	fprintf(files[x], "ROOM TYPE: %s\n", names[1]);
 	else
 	fprintf(files[x], "ROOM TYPE: %s\n", names[2]);	
@@ -157,51 +158,88 @@ for (x=0; x < 7; x++) {
 	fclose(files[x]);
 }
 //fclose(files);
-char* visitedRooms[7] = {"x","x","x","x","x","x","x"};
-char* currentConnections[6] = {"x","x","x","x","x","x"};
-
+char visitedRooms[20][30] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+char currentConnections[7][30] = {0, 0, 0, 0, 0, 0, 0};
+//memset(currentConnections, 0, sizeof(roomConnections));  //set all values in array to NULL
+int visitedNumber = 0;
 bool = 1;
-//printf("%s", files[2]);
-//snprintf(buf, sizeof(buf), "%s", roomNames[roomNums[4]]);
-printf("start room is: %s\n", startRoom);
 
 
 
 
 char filename[100];
 strcpy(filename, startRoom);
-//FILE *file = fopen (startRoom, "r");
-i = 0;
-printf("%s\n", filename);
+
 while(bool == 1){
-FILE* file = fopen(filename, "r");
+
+filename[strcspn(filename, "\n")] = 0;
+FILE *file = fopen(filename, "r");
 
 if (file != NULL){
+	strcpy(visitedRooms[visitedNumber], filename);	
+	visitedNumber++;
+	i = 0;
 	char line[1000];
-	while(fgets(line, sizeof line, file)!= NULL){
-	printf(line);
-	if(line[0] == 'C') {
-			currentConnections[i] = strchr(line, ':')+2;// + strlen(line) - connLength;
-			printf("%s\n", currentConnections[i]);
-	}	
-	else if(line[5] == 'T'){
-			if(strchr(line, ':') + 2 == names[1]){
-				printf("you've found the end room!");
+	printf("CURRENT LOCATION: %s\n", filename);
+	for(x = 0; x < 7; x++){
+		strcpy(currentConnections[x],"");
+	}
+	while(fgets(line, sizeof line, file) != NULL){
+	
+	if(line[5] == 'T'){	
+		if(line[11] == 'E'){
+				printf("you've found the end room!\n");
+				printf("total rooms visited: %d\n", visitedNumber);								for (l = 0; l < visitedNumber; l++){
+				if(l == visitedNumber - 1) printf("%s.", visitedRooms[l]);	
+				else printf("%s, ", visitedRooms[l]);
+				}
 				bool = 0;
 			}
 		}
+
+	else if(line[0] == 'C'){
+		line[strcspn(line, "\n")] = 0;
+		strcpy(currentConnections[i], strchr(line, ':')+2);
+		i++;	
+	}
+	
 	
 }}
-	else printf("errrrrrror no file");
+	else printf("sorry, this is not a valid filename");
+
+
+if(bool==1){
+
+count = 0;
+while(count == 0){
+
+printf("POSSIBLE CONNECTIONS: ");
+
+for(i = 0; i < 6; i++) {
+	if(strcmp(currentConnections[i], "")==0) break;
+	else if(strcmp(currentConnections[i+1],"")!=0) printf("%s, ", currentConnections[i]); 
+	else printf("%s.\n", currentConnections[i]);
+}
 
 printf("where you wanna go next?");
 fgets(filename, 100, stdin);
-if (file != NULL) fclose(file);
+
+filename[strcspn(filename, "\n")] = 0;
 
 
-	
+for(i = 0; i < 6; i++){
+	if(strcmp(currentConnections[i], filename) == 0) count = 1;
+}
+
+
+if(count == 0) printf("please enter another name\n");
+}
+
 
 }
+if (file != NULL) fclose(file);
+	}
+
 
 
 
